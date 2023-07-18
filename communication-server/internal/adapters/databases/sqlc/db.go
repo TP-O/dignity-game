@@ -3,8 +3,8 @@ package sqlc
 import (
 	"log"
 	"database/sql"
-	"chat-server/configs"
-	"chat-server/internal/apps/models"
+	"communication-server/configs"
+	"communication-server/internal/apps/models"
 )
 
 type Database struct {

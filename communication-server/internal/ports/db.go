@@ -1,8 +1,8 @@
 package ports
 
-import "chat-server/internal/apps/models"
+import "communication-server/internal/apps/models"
 
-type ApiPort interface {
+type DbPort interface {
 	AddItem(name string) error
 	GetItems() ([]*models.Item, error)
 }

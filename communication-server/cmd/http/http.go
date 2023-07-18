@@ -1,10 +1,10 @@
 package http
 
 import (
-	"chat-server/configs"
-	"chat-server/internal/apps/apis"
-	"chat-server/internal/adapters/server/gingonic"
-	"chat-server/internal/adapters/databases/sqlc"
+	"communication-server/configs"
+	"communication-server/internal/apps/apis"
+	"communication-server/internal/adapters/server/gingonic"
+	"communication-server/internal/adapters/databases/sqlc"
 )
 
 func Cmd(conf *configs.Configs) {

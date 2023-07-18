@@ -1,8 +1,8 @@
 package apis
 
 import (
-	"chat-server/internal/apps/models"
-	"chat-server/internal/ports"
+	"communication-server/internal/apps/models"
+	"communication-server/internal/ports"
 )
 
 type Application struct {

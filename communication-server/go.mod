@@ -1,4 +1,4 @@
-module chat-server
+module communication-server
 
 go 1.20
 
