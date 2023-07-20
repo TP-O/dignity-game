@@ -1,0 +1,11 @@
+app:
+  debug: true
+  env: development
+  port: 8080
+postgresql:
+  host: postgres
+  port: 5432
+  username: dgame
+  password: dgame
+  database: dgame
+  pollSize: 5
