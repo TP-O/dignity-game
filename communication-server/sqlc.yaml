@@ -1,0 +1,12 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "infrastructure/postgresql/query"
+    schema: "infrastructure/postgresql/migration"
+    gen:
+      go:
+        package: "gen"
+        out: "infrastructure/postgresql/gen"
+        emit_json_tags: true
+        emit_prepared_queries: true
+        emit_interface: true

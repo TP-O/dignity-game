@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+    app:
+        image: dgame-comm:dev
+        build:
+            context: .
+            dockerfile: Dockerfile.dev
+        ports:
+            - 8080:8080
+        volumes:
+            - ./:/app
+            - .docker/go/pkg/mod:/go/pkg/mod
+        depends_on:
+            - postgres
+        networks:
+            - postgres-network
+
+    postgres:
+        image: bitnami/postgresql:15.2.0
+        environment:
+            - POSTGRESQL_DATABASE=dgame
+            - POSTGRESQL_USERNAME=dgame
+            - POSTGRESQL_PASSWORD=dgame
+        volumes:
+            - .docker/postgres/data:/var/lib/postgresql/data
+        networks:
+            - postgres-network
+
+    adminer:
+        image: adminer
+        ports:
+            - 8081:8080
+        networks:
+            - postgres-network
+
+networks:
+    postgres-network:

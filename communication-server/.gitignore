@@ -1,0 +1,4 @@
+config.yml
+tmp/
+.docker/postgres/data
+.docker/go
