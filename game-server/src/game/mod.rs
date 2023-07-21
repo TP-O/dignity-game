@@ -15,6 +15,7 @@ mod asset;
 mod bank;
 use bank::Bank;
 
+
 pub type Coin = i64;
 
 pub type PlayerID = u64;
@@ -61,12 +62,14 @@ impl Game {
         }
     }
 
-    pub fn start(&mut self) {
+    pub async fn start(&mut self) {
         loop {
             for player in self.players.iter_mut() {
-                let (_, steps) = self.dice.roll();
+
+                let (_, steps) = self.dice.run().await;
                 println!("Player {} moves {} steps", player.id(), steps);
             }
         }
     }
+   
 }
