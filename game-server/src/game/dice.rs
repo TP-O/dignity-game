@@ -47,7 +47,6 @@ impl Dice {
 
             result.0.push(faces);
         }
-
         result
     }
 }

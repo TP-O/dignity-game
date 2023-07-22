@@ -27,4 +27,5 @@ impl Player {
         self.balance += amount;
         self.balance > 0
     }
+
 }
