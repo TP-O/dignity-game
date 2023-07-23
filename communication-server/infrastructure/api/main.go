@@ -11,13 +11,15 @@ import (
 type apiServer struct {
 	cfg           config.App
 	cache         port.Cache
-	playerUsecase usecase.PlayerUsecaseContract
+	authUsecase   usecase.AuthUsecase
+	playerUsecase usecase.PlayerUsecase
 }
 
 func New(
 	cfg config.App,
 	cache port.Cache,
-	playerUsecase usecase.PlayerUsecaseContract,
+	authUsecase usecase.AuthUsecase,
+	playerUsecase usecase.PlayerUsecase,
 ) *apiServer {
 	if cfg.Env == config.ProdEnv {
 		gin.SetMode(gin.ReleaseMode)
@@ -26,10 +28,13 @@ func New(
 	return &apiServer{
 		cfg,
 		cache,
+		authUsecase,
 		playerUsecase,
 	}
 }
 
 func (as apiServer) Use(router *gin.RouterGroup) {
 	router.GET("/player/:id", as.getPlayerByID)
+	router.POST("/auth/login", as.loginPlayer)
+	router.POST("/auth/register", as.registerPlayer)
 }

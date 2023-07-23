@@ -4,27 +4,25 @@ import (
 	"communication-server/internal/domain"
 	"communication-server/internal/port"
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type playerUsecase struct {
 	repository port.Repository
 }
 
-type PlayerUsecaseContract interface {
-	FindPlayer(ctx context.Context, id int) (domain.Player, error)
+type PlayerUsecase interface {
+	FindPlayer(ctx context.Context, id uuid.UUID) (domain.Player, error)
 }
 
-var _ PlayerUsecaseContract = (*playerUsecase)(nil)
+var _ PlayerUsecase = (*playerUsecase)(nil)
 
-func NewPlayerUsecase(repository port.Repository) PlayerUsecaseContract {
+func NewPlayerUsecase(repository port.Repository) PlayerUsecase {
 	return &playerUsecase{repository}
 }
 
-func (pu playerUsecase) FindPlayer(ctx context.Context, id int) (domain.Player, error) {
-	var data domain.Player
-	res, err := pu.repository.PlayerByID(ctx, int64(id))
-	data.ID = res.ID
-	data.Username = res.Username.String
-
-	return data, err
+func (pu playerUsecase) FindPlayer(ctx context.Context, id uuid.UUID) (res domain.Player, err error) {
+	res.Player, err = pu.repository.PlayerByID(ctx, id)
+	return
 }

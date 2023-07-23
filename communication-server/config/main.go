@@ -30,7 +30,7 @@ func Load(path string) *config {
 		cfg = &config{}
 		viper.AddConfigPath(path)
 		viper.SetConfigName("config")
-		viper.SetConfigType("yaml")
+		viper.SetConfigType("yml")
 
 		if err := viper.ReadInConfig(); err != nil {
 			log.Println("Unable to load config:", err)
@@ -40,6 +40,10 @@ func Load(path string) *config {
 		loadDefaultConfig(cfg)
 		if err := viper.Unmarshal(cfg); err != nil {
 			log.Panic(err)
+		}
+
+		if len(cfg.App.SecretKey) < 32 {
+			log.Panicf("The secret key is insecure: %s", cfg.App.SecretKey)
 		}
 	}
 

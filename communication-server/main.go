@@ -38,6 +38,7 @@ func main() {
 	apiServer := api.New(
 		config.App,
 		cache.New(nil),
+		usecase.NewAuthentiUsecase(config.App.SecretKey, pdb),
 		usecase.NewPlayerUsecase(pdb),
 	)
 	apiServer.Use(apiGroup)

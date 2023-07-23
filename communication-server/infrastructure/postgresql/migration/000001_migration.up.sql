@@ -1,4 +1,8 @@
 CREATE TABLE players (
-    id BIGINT PRIMARY KEY,
-    username VARCHAR(50) UNIQUE
+    id uuid PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(320) NOT NULL,
+    password VARCHAR(72) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP
 );

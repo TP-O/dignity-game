@@ -24,6 +24,12 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
+	if q.createPlayerStmt, err = db.PrepareContext(ctx, createPlayer); err != nil {
+		return nil, fmt.Errorf("error preparing query CreatePlayer: %w", err)
+	}
+	if q.playerByEmailOrUsernameStmt, err = db.PrepareContext(ctx, playerByEmailOrUsername); err != nil {
+		return nil, fmt.Errorf("error preparing query PlayerByEmailOrUsername: %w", err)
+	}
 	if q.playerByIDStmt, err = db.PrepareContext(ctx, playerByID); err != nil {
 		return nil, fmt.Errorf("error preparing query PlayerByID: %w", err)
 	}
@@ -32,6 +38,16 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 
 func (q *Queries) Close() error {
 	var err error
+	if q.createPlayerStmt != nil {
+		if cerr := q.createPlayerStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createPlayerStmt: %w", cerr)
+		}
+	}
+	if q.playerByEmailOrUsernameStmt != nil {
+		if cerr := q.playerByEmailOrUsernameStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing playerByEmailOrUsernameStmt: %w", cerr)
+		}
+	}
 	if q.playerByIDStmt != nil {
 		if cerr := q.playerByIDStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing playerByIDStmt: %w", cerr)
@@ -74,15 +90,19 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db             DBTX
-	tx             *sql.Tx
-	playerByIDStmt *sql.Stmt
+	db                          DBTX
+	tx                          *sql.Tx
+	createPlayerStmt            *sql.Stmt
+	playerByEmailOrUsernameStmt *sql.Stmt
+	playerByIDStmt              *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:             tx,
-		tx:             tx,
-		playerByIDStmt: q.playerByIDStmt,
+		db:                          tx,
+		tx:                          tx,
+		createPlayerStmt:            q.createPlayerStmt,
+		playerByEmailOrUsernameStmt: q.playerByEmailOrUsernameStmt,
+		playerByIDStmt:              q.playerByIDStmt,
 	}
 }
