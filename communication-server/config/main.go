@@ -13,6 +13,7 @@ type configLoader interface {
 type config struct {
 	App        `mapstructure:"app"`
 	PostgreSQL `mapstructure:"postgresql"`
+	Mail       `mapstructure:"mail"`
 }
 
 var cfg *config
@@ -21,6 +22,7 @@ var cfg *config
 func loadDefaultConfig(cfg *config) {
 	cfg.App.loadDefault()
 	cfg.PostgreSQL.loadDefault()
+	cfg.Mail.loadDefault()
 }
 
 // Load loads config values from the given path and

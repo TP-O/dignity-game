@@ -18,6 +18,7 @@ type apiServer struct {
 func New(
 	cfg config.App,
 	cache port.Cache,
+	mailer port.Mailer,
 	authUsecase usecase.AuthUsecase,
 	playerUsecase usecase.PlayerUsecase,
 ) *apiServer {

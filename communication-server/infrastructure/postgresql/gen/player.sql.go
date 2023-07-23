@@ -17,7 +17,7 @@ INSERT INTO players (
 ) VALUES (
     $1, $2, $3, NOW()
 )
-RETURNING id, username, email, password, created_at, updated_at
+RETURNING id, username, email, password, active, email_verified_at, created_at, updated_at
 `
 
 type CreatePlayerParams struct {
@@ -34,6 +34,8 @@ func (q *Queries) CreatePlayer(ctx context.Context, arg CreatePlayerParams) (Pla
 		&i.Username,
 		&i.Email,
 		&i.Password,
+		&i.Active,
+		&i.EmailVerifiedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -41,7 +43,7 @@ func (q *Queries) CreatePlayer(ctx context.Context, arg CreatePlayerParams) (Pla
 }
 
 const playerByEmailOrUsername = `-- name: PlayerByEmailOrUsername :one
-SELECT id, username, email, password, created_at, updated_at FROM players
+SELECT id, username, email, password, active, email_verified_at, created_at, updated_at FROM players
 WHERE email = $1 OR
     username = $1 LIMIT 1
 `
@@ -54,6 +56,8 @@ func (q *Queries) PlayerByEmailOrUsername(ctx context.Context, emailOrUsername s
 		&i.Username,
 		&i.Email,
 		&i.Password,
+		&i.Active,
+		&i.EmailVerifiedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -61,7 +65,7 @@ func (q *Queries) PlayerByEmailOrUsername(ctx context.Context, emailOrUsername s
 }
 
 const playerByID = `-- name: PlayerByID :one
-SELECT id, username, email, password, created_at, updated_at FROM players
+SELECT id, username, email, password, active, email_verified_at, created_at, updated_at FROM players
 WHERE id = $1 LIMIT 1
 `
 
@@ -73,6 +77,8 @@ func (q *Queries) PlayerByID(ctx context.Context, id uuid.UUID) (Player, error) 
 		&i.Username,
 		&i.Email,
 		&i.Password,
+		&i.Active,
+		&i.EmailVerifiedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

@@ -38,7 +38,8 @@ func NewAuthentiUsecase(secretKey string, repository port.Repository) AuthUsecas
 
 func (au authUsecase) Login(ctx context.Context, data dto.LoginPlayerDto) (res presenter.LoginPlayerPresenter, err error) {
 	var (
-		player domain.Player
+		player    domain.Player
+		jsonToken paseto.JSONToken
 	)
 
 	if data.Email != "" {
@@ -50,21 +51,25 @@ func (au authUsecase) Login(ctx context.Context, data dto.LoginPlayerDto) (res p
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(player.Password), []byte(data.Password))
-	if err != nil {
+	if err = bcrypt.CompareHashAndPassword([]byte(player.Password), []byte(data.Password)); err != nil {
 		return
 	}
 
 	now := time.Now()
 	exp := now.Add(TOKEN_LIFETIME)
-	jsonToken := paseto.JSONToken{
+	jsonToken = paseto.JSONToken{
 		Issuer: "login",
 		// Jti:        player.ID.String(), // TODO: implement jti checking
 		Subject:    player.ID.String(),
 		IssuedAt:   now,
 		Expiration: exp,
 	}
-	res.Token, err = paseto.NewV2().Encrypt([]byte(au.secretKey), jsonToken, nil)
+
+	if res.Token, err = paseto.NewV2().Encrypt([]byte(au.secretKey), jsonToken, nil); err != nil {
+		return
+	}
+
+	res.Player = player
 	return
 }
 
@@ -72,39 +77,42 @@ func (au authUsecase) Register(ctx context.Context, data dto.RegisterPlayerDto) 
 	var (
 		player         domain.Player
 		hashedPassword []byte
+		jsonToken      paseto.JSONToken
 	)
 
-	_, err = au.repository.PlayerByEmailOrUsername(ctx, data.Email)
-	if err != sql.ErrNoRows {
+	if _, err = au.repository.PlayerByEmailOrUsername(ctx, data.Email); err != sql.ErrNoRows {
 		if err == nil {
-			err = pkg.ErrEmailUnavailabl
+			err = pkg.ErrEmailUnavailable
 		}
 		return
 	}
 
-	hashedPassword, err = bcrypt.GenerateFromPassword([]byte(data.Password), BCRYPT_COST)
-	if err != nil {
+	if hashedPassword, err = bcrypt.GenerateFromPassword([]byte(data.Password), BCRYPT_COST); err != nil {
 		return
 	}
 
-	player.Player, err = au.repository.CreatePlayer(ctx, gen.CreatePlayerParams{
+	if player.Player, err = au.repository.CreatePlayer(ctx, gen.CreatePlayerParams{
 		Username: pkg.RandomString(12),
 		Email:    data.Email,
 		Password: string(hashedPassword),
-	})
-	if err != nil {
+	}); err != nil {
 		return
 	}
 
 	now := time.Now()
 	exp := now.Add(TOKEN_LIFETIME)
-	jsonToken := paseto.JSONToken{
+	jsonToken = paseto.JSONToken{
 		Issuer: "register",
 		// Jti:        player.ID.String(), // TODO: implement jti checking
 		Subject:    player.ID.String(),
 		IssuedAt:   now,
 		Expiration: exp,
 	}
-	res.Token, err = paseto.NewV2().Encrypt([]byte(au.secretKey), jsonToken, nil)
+
+	if res.Token, err = paseto.NewV2().Encrypt([]byte(au.secretKey), jsonToken, nil); err != nil {
+		return
+	}
+
+	res.Player = player
 	return
 }
