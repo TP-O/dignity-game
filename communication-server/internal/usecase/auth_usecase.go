@@ -29,10 +29,14 @@ type authUsecase struct {
 }
 
 type AuthUsecase interface {
-	Login(ctx context.Context, data dto.LoginPlayerDto) (presenter.LoginPlayerPresenter, error)
-	Register(ctx context.Context, data dto.RegisterPlayerDto) (presenter.LoginPlayerPresenter, error)
+	Login(ctx context.Context, data dto.LoginPlayer) (presenter.LoginPlayerPresenter, error)
+	Register(ctx context.Context, data dto.RegisterPlayer) (presenter.LoginPlayerPresenter, error)
+
 	GenerateEmailVerificationLink(id uuid.UUID) (string, error)
 	VerifyEmail(ctx context.Context, id uuid.UUID, expiredAt int64, signature string) error
+
+	GenerateResetPasswordLink(ctx context.Context, email string) (string, error)
+	ResetPassword(ctx context.Context, id uuid.UUID, expiredAt int64, signature string, data dto.ResetPassword) error
 }
 
 var _ AuthUsecase = (*authUsecase)(nil)
@@ -41,7 +45,7 @@ func NewAuthentiUsecase(appCfg config.App, repository port.Repository) AuthUseca
 	return &authUsecase{appCfg, repository}
 }
 
-func (au authUsecase) Login(ctx context.Context, data dto.LoginPlayerDto) (res presenter.LoginPlayerPresenter, err error) {
+func (au authUsecase) Login(ctx context.Context, data dto.LoginPlayer) (res presenter.LoginPlayerPresenter, err error) {
 	var (
 		player    domain.Player
 		jsonToken paseto.JSONToken
@@ -80,7 +84,7 @@ func (au authUsecase) Login(ctx context.Context, data dto.LoginPlayerDto) (res p
 	return
 }
 
-func (au authUsecase) Register(ctx context.Context, data dto.RegisterPlayerDto) (res presenter.LoginPlayerPresenter, err error) {
+func (au authUsecase) Register(ctx context.Context, data dto.RegisterPlayer) (res presenter.LoginPlayerPresenter, err error) {
 	var (
 		player         domain.Player
 		hashedPassword []byte
@@ -137,7 +141,7 @@ func (au authUsecase) GenerateEmailVerificationLink(id uuid.UUID) (link string, 
 	expiredAt = time.Now().Add(1 * time.Hour).UnixMilli()
 	signature, err = pkg.SignWithHMAC(
 		au.appCfg.SecretKey,
-		fmt.Sprintf(`{"id":"%s","expiredAt":%d}`, id.String(), expiredAt),
+		fmt.Sprintf("%s_%d_e", id.String(), expiredAt),
 	)
 	if err != nil {
 		return
@@ -159,7 +163,7 @@ func (au authUsecase) VerifyEmail(ctx context.Context, id uuid.UUID, expiredAt i
 
 	expectedSignature, err = pkg.SignWithHMAC(
 		au.appCfg.SecretKey,
-		fmt.Sprintf(`{"id":"%s","expiredAt":%d}`, id.String(), expiredAt),
+		fmt.Sprintf("%s_%d_e", id.String(), expiredAt),
 	)
 	if err != nil {
 		return
@@ -173,5 +177,74 @@ func (au authUsecase) VerifyEmail(ctx context.Context, id uuid.UUID, expiredAt i
 		return pkg.ErrExpiredVersion
 	}
 
-	return au.repository.VerifyPlayerEmail(ctx, id)
+	return au.repository.VerifyEmail(ctx, id)
+}
+
+func (au authUsecase) GenerateResetPasswordLink(ctx context.Context, email string) (link string, err error) {
+	var (
+		expiredAt int64
+		signature string
+		player    domain.Player
+	)
+
+	player.Player, err = au.repository.PlayerByEmailOrUsername(ctx, email)
+	if err != nil {
+		return
+	}
+
+	expiredAt = time.Now().Add(1 * time.Hour).UnixMilli()
+	signature, err = pkg.SignWithHMAC(
+		au.appCfg.SecretKey,
+		fmt.Sprintf("%s_%d_p", player.ID.String(), expiredAt),
+	)
+	if err != nil {
+		return
+	}
+
+	link = fmt.Sprintf("%s/auth/reset_password?id=%s&expiredAt=%d&signature=%s",
+		au.appCfg.Host,
+		player.ID.String(),
+		expiredAt,
+		signature,
+	)
+	return
+}
+
+func (au authUsecase) ResetPassword(
+	ctx context.Context,
+	id uuid.UUID,
+	expiredAt int64,
+	signature string,
+	data dto.ResetPassword,
+) (err error) {
+	var (
+		expectedSignature string
+		hashedPassword    []byte
+	)
+
+	expectedSignature, err = pkg.SignWithHMAC(
+		au.appCfg.SecretKey,
+		fmt.Sprintf("%s_%d_p", id.String(), expiredAt),
+	)
+	if err != nil {
+		return
+	}
+
+	if expectedSignature != signature {
+		return pkg.ErrInvalidSignature
+	}
+
+	if time.Now().UnixMilli() > expiredAt {
+		return pkg.ErrExpiredVersion
+	}
+
+	hashedPassword, err = bcrypt.GenerateFromPassword([]byte(data.Password), BCRYPT_COST)
+	if err != nil {
+		return
+	}
+
+	return au.repository.UpdatePassword(ctx, gen.UpdatePasswordParams{
+		ID:       id,
+		Password: string(hashedPassword),
+	})
 }

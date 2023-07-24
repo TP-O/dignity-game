@@ -14,6 +14,7 @@ type playerUsecase struct {
 
 type PlayerUsecase interface {
 	FindPlayer(ctx context.Context, id uuid.UUID) (domain.Player, error)
+	FindPlayerByUsernameOrEmail(ctx context.Context, usernameOrEmail string) (domain.Player, error)
 }
 
 var _ PlayerUsecase = (*playerUsecase)(nil)
@@ -24,5 +25,10 @@ func NewPlayerUsecase(repository port.Repository) PlayerUsecase {
 
 func (pu playerUsecase) FindPlayer(ctx context.Context, id uuid.UUID) (res domain.Player, err error) {
 	res.Player, err = pu.repository.PlayerByID(ctx, id)
+	return
+}
+
+func (pu playerUsecase) FindPlayerByUsernameOrEmail(ctx context.Context, usernameOrEmail string) (res domain.Player, err error) {
+	res.Player, err = pu.repository.PlayerByEmailOrUsername(ctx, usernameOrEmail)
 	return
 }

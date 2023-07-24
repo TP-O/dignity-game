@@ -9,7 +9,7 @@ import (
 
 func (as apiServer) LoginPlayer(ctx *gin.Context) {
 	var (
-		req dto.LoginPlayerDto
+		req dto.LoginPlayer
 		res presenter.LoginPlayerPresenter
 		err error
 	)

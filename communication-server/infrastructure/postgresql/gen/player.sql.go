@@ -13,11 +13,11 @@ import (
 
 const createPlayer = `-- name: CreatePlayer :one
 INSERT INTO players (
-    username, email, password, updated_at
+    username, email, password
 ) VALUES (
-    $1, $2, $3, NOW()
+    $1, $2, $3
 )
-RETURNING id, username, email, password, active, email_verified_at, created_at, updated_at
+RETURNING id, username, email, password, active, email_verified_at, created_at, password_updated_at
 `
 
 type CreatePlayerParams struct {
@@ -37,13 +37,13 @@ func (q *Queries) CreatePlayer(ctx context.Context, arg CreatePlayerParams) (Pla
 		&i.Active,
 		&i.EmailVerifiedAt,
 		&i.CreatedAt,
-		&i.UpdatedAt,
+		&i.PasswordUpdatedAt,
 	)
 	return i, err
 }
 
 const playerByEmailOrUsername = `-- name: PlayerByEmailOrUsername :one
-SELECT id, username, email, password, active, email_verified_at, created_at, updated_at FROM players
+SELECT id, username, email, password, active, email_verified_at, created_at, password_updated_at FROM players
 WHERE email = $1 OR
     username = $1 LIMIT 1
 `
@@ -59,13 +59,13 @@ func (q *Queries) PlayerByEmailOrUsername(ctx context.Context, emailOrUsername s
 		&i.Active,
 		&i.EmailVerifiedAt,
 		&i.CreatedAt,
-		&i.UpdatedAt,
+		&i.PasswordUpdatedAt,
 	)
 	return i, err
 }
 
 const playerByID = `-- name: PlayerByID :one
-SELECT id, username, email, password, active, email_verified_at, created_at, updated_at FROM players
+SELECT id, username, email, password, active, email_verified_at, created_at, password_updated_at FROM players
 WHERE id = $1 LIMIT 1
 `
 
@@ -80,17 +80,32 @@ func (q *Queries) PlayerByID(ctx context.Context, id uuid.UUID) (Player, error) 
 		&i.Active,
 		&i.EmailVerifiedAt,
 		&i.CreatedAt,
-		&i.UpdatedAt,
+		&i.PasswordUpdatedAt,
 	)
 	return i, err
 }
 
-const verifyPlayerEmail = `-- name: VerifyPlayerEmail :exec
+const updatePassword = `-- name: UpdatePassword :exec
+UPDATE players SET password = $1, password_updated_at = NOW()
+WHERE id = $2
+`
+
+type UpdatePasswordParams struct {
+	Password string    `json:"password"`
+	ID       uuid.UUID `json:"id"`
+}
+
+func (q *Queries) UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error {
+	_, err := q.exec(ctx, q.updatePasswordStmt, updatePassword, arg.Password, arg.ID)
+	return err
+}
+
+const verifyEmail = `-- name: VerifyEmail :exec
 UPDATE players SET email_verified_at = NOW()
 WHERE id = $1
 `
 
-func (q *Queries) VerifyPlayerEmail(ctx context.Context, id uuid.UUID) error {
-	_, err := q.exec(ctx, q.verifyPlayerEmailStmt, verifyPlayerEmail, id)
+func (q *Queries) VerifyEmail(ctx context.Context, id uuid.UUID) error {
+	_, err := q.exec(ctx, q.verifyEmailStmt, verifyEmail, id)
 	return err
 }

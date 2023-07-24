@@ -9,7 +9,7 @@ import (
 
 func (as apiServer) RegisterPlayer(ctx *gin.Context) {
 	var (
-		req dto.RegisterPlayerDto
+		req dto.RegisterPlayer
 		res presenter.LoginPlayerPresenter
 		err error
 	)

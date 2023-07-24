@@ -6,5 +6,5 @@ CREATE TABLE players (
     active BOOLEAN NOT NULL DEFAULT 1,
     email_verified_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP
+    password_updated_at TIMESTAMP
 );

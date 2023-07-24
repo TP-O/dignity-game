@@ -14,7 +14,8 @@ type Querier interface {
 	CreatePlayer(ctx context.Context, arg CreatePlayerParams) (Player, error)
 	PlayerByEmailOrUsername(ctx context.Context, emailOrUsername string) (Player, error)
 	PlayerByID(ctx context.Context, id uuid.UUID) (Player, error)
-	VerifyPlayerEmail(ctx context.Context, id uuid.UUID) error
+	UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error
+	VerifyEmail(ctx context.Context, id uuid.UUID) error
 }
 
 var _ Querier = (*Queries)(nil)

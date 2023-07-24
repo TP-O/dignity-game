@@ -9,12 +9,17 @@ WHERE email = sqlc.arg(email_or_username) OR
 
 -- name: CreatePlayer :one
 INSERT INTO players (
-    username, email, password, updated_at
+    username, email, password
 ) VALUES (
-    $1, $2, $3, NOW()
+    $1, $2, $3
 )
 RETURNING *;
 
--- name: VerifyPlayerEmail :exec
+-- name: VerifyEmail :exec
 UPDATE players SET email_verified_at = NOW()
 WHERE id = $1;
+
+-- name: UpdatePassword :exec
+UPDATE players SET password = $1, password_updated_at = NOW()
+WHERE id = $2;
+

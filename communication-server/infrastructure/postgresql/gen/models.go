@@ -12,12 +12,12 @@ import (
 )
 
 type Player struct {
-	ID              uuid.UUID    `json:"id"`
-	Username        string       `json:"username"`
-	Email           string       `json:"email"`
-	Password        string       `json:"password"`
-	Active          bool         `json:"active"`
-	EmailVerifiedAt sql.NullTime `json:"email_verified_at"`
-	CreatedAt       time.Time    `json:"created_at"`
-	UpdatedAt       sql.NullTime `json:"updated_at"`
+	ID                uuid.UUID    `json:"id"`
+	Username          string       `json:"username"`
+	Email             string       `json:"email"`
+	Password          string       `json:"password"`
+	Active            bool         `json:"active"`
+	EmailVerifiedAt   sql.NullTime `json:"email_verified_at"`
+	CreatedAt         time.Time    `json:"created_at"`
+	PasswordUpdatedAt sql.NullTime `json:"password_updated_at"`
 }
