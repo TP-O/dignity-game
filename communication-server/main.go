@@ -44,7 +44,7 @@ func main() {
 		config.App,
 		cache.New(nil),
 		mailer,
-		usecase.NewAuthentiUsecase(config.App.SecretKey, pdb),
+		usecase.NewAuthentiUsecase(config.App, pdb),
 		usecase.NewPlayerUsecase(pdb),
 	)
 	apiServer.Use(apiGroup)

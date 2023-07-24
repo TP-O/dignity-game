@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (as apiServer) loginPlayer(ctx *gin.Context) {
+func (as apiServer) LoginPlayer(ctx *gin.Context) {
 	var (
 		req dto.LoginPlayerDto
 		res presenter.LoginPlayerPresenter

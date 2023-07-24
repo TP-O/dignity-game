@@ -33,6 +33,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.playerByIDStmt, err = db.PrepareContext(ctx, playerByID); err != nil {
 		return nil, fmt.Errorf("error preparing query PlayerByID: %w", err)
 	}
+	if q.verifyPlayerEmailStmt, err = db.PrepareContext(ctx, verifyPlayerEmail); err != nil {
+		return nil, fmt.Errorf("error preparing query VerifyPlayerEmail: %w", err)
+	}
 	return &q, nil
 }
 
@@ -51,6 +54,11 @@ func (q *Queries) Close() error {
 	if q.playerByIDStmt != nil {
 		if cerr := q.playerByIDStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing playerByIDStmt: %w", cerr)
+		}
+	}
+	if q.verifyPlayerEmailStmt != nil {
+		if cerr := q.verifyPlayerEmailStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing verifyPlayerEmailStmt: %w", cerr)
 		}
 	}
 	return err
@@ -95,6 +103,7 @@ type Queries struct {
 	createPlayerStmt            *sql.Stmt
 	playerByEmailOrUsernameStmt *sql.Stmt
 	playerByIDStmt              *sql.Stmt
+	verifyPlayerEmailStmt       *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
@@ -104,5 +113,6 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		createPlayerStmt:            q.createPlayerStmt,
 		playerByEmailOrUsernameStmt: q.playerByEmailOrUsernameStmt,
 		playerByIDStmt:              q.playerByIDStmt,
+		verifyPlayerEmailStmt:       q.verifyPlayerEmailStmt,
 	}
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (as apiServer) getPlayerByID(ctx *gin.Context) {
+func (as apiServer) GetPlayerByID(ctx *gin.Context) {
 	var (
 		id  uuid.UUID
 		res domain.Player

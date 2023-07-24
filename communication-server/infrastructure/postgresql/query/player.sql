@@ -14,3 +14,7 @@ INSERT INTO players (
     $1, $2, $3, NOW()
 )
 RETURNING *;
+
+-- name: VerifyPlayerEmail :exec
+UPDATE players SET email_verified_at = NOW()
+WHERE id = $1;

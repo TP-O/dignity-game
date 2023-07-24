@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (as apiServer) registerPlayer(ctx *gin.Context) {
+func (as apiServer) RegisterPlayer(ctx *gin.Context) {
 	var (
 		req dto.RegisterPlayerDto
 		res presenter.LoginPlayerPresenter
@@ -23,6 +23,12 @@ func (as apiServer) registerPlayer(ctx *gin.Context) {
 	if err != nil {
 		return
 	}
+
+	go func() {
+		if link, err := as.authUsecase.GenerateEmailVerificationLink(res.Player.ID); err == nil {
+			as.mailer.SendEmailVerificationEmail(res.Player.Email, link)
+		}
+	}()
 
 	ctx.JSON(200, map[string]any{
 		"ok":   true,

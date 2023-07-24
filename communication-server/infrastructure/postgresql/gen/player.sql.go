@@ -84,3 +84,13 @@ func (q *Queries) PlayerByID(ctx context.Context, id uuid.UUID) (Player, error) 
 	)
 	return i, err
 }
+
+const verifyPlayerEmail = `-- name: VerifyPlayerEmail :exec
+UPDATE players SET email_verified_at = NOW()
+WHERE id = $1
+`
+
+func (q *Queries) VerifyPlayerEmail(ctx context.Context, id uuid.UUID) error {
+	_, err := q.exec(ctx, q.verifyPlayerEmailStmt, verifyPlayerEmail, id)
+	return err
+}

@@ -11,6 +11,7 @@ import (
 type apiServer struct {
 	cfg           config.App
 	cache         port.Cache
+	mailer        port.Mailer
 	authUsecase   usecase.AuthUsecase
 	playerUsecase usecase.PlayerUsecase
 }
@@ -29,13 +30,15 @@ func New(
 	return &apiServer{
 		cfg,
 		cache,
+		mailer,
 		authUsecase,
 		playerUsecase,
 	}
 }
 
 func (as apiServer) Use(router *gin.RouterGroup) {
-	router.GET("/player/:id", as.getPlayerByID)
-	router.POST("/auth/login", as.loginPlayer)
-	router.POST("/auth/register", as.registerPlayer)
+	router.GET("/player/:id", as.GetPlayerByID)
+	router.POST("/auth/login", as.LoginPlayer)
+	router.POST("/auth/register", as.RegisterPlayer)
+	router.GET("/auth/verify", as.VerifyEmail)
 }
