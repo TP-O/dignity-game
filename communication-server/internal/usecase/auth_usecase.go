@@ -56,7 +56,8 @@ func (au authUsecase) Login(ctx context.Context, data dto.LoginPlayerDto) (res p
 		return
 	}
 
-	if err = bcrypt.CompareHashAndPassword([]byte(player.Password), []byte(data.Password)); err != nil {
+	err = bcrypt.CompareHashAndPassword([]byte(player.Password), []byte(data.Password))
+	if err != nil {
 		return
 	}
 
@@ -70,7 +71,8 @@ func (au authUsecase) Login(ctx context.Context, data dto.LoginPlayerDto) (res p
 		Expiration: exp,
 	}
 
-	if res.Token, err = paseto.NewV2().Encrypt([]byte(au.appCfg.SecretKey), jsonToken, nil); err != nil {
+	res.Token, err = paseto.NewV2().Encrypt([]byte(au.appCfg.SecretKey), jsonToken, nil)
+	if err != nil {
 		return
 	}
 
@@ -85,22 +87,25 @@ func (au authUsecase) Register(ctx context.Context, data dto.RegisterPlayerDto) 
 		jsonToken      paseto.JSONToken
 	)
 
-	if _, err = au.repository.PlayerByEmailOrUsername(ctx, data.Email); err != sql.ErrNoRows {
+	_, err = au.repository.PlayerByEmailOrUsername(ctx, data.Email)
+	if err != sql.ErrNoRows {
 		if err == nil {
 			err = pkg.ErrEmailUnavailable
 		}
 		return
 	}
 
-	if hashedPassword, err = bcrypt.GenerateFromPassword([]byte(data.Password), BCRYPT_COST); err != nil {
+	hashedPassword, err = bcrypt.GenerateFromPassword([]byte(data.Password), BCRYPT_COST)
+	if err != nil {
 		return
 	}
 
-	if player.Player, err = au.repository.CreatePlayer(ctx, gen.CreatePlayerParams{
+	player.Player, err = au.repository.CreatePlayer(ctx, gen.CreatePlayerParams{
 		Username: pkg.RandomString(12),
 		Email:    data.Email,
 		Password: string(hashedPassword),
-	}); err != nil {
+	})
+	if err != nil {
 		return
 	}
 
@@ -114,7 +119,8 @@ func (au authUsecase) Register(ctx context.Context, data dto.RegisterPlayerDto) 
 		Expiration: exp,
 	}
 
-	if res.Token, err = paseto.NewV2().Encrypt([]byte(au.appCfg.SecretKey), jsonToken, nil); err != nil {
+	res.Token, err = paseto.NewV2().Encrypt([]byte(au.appCfg.SecretKey), jsonToken, nil)
+	if err != nil {
 		return
 	}
 

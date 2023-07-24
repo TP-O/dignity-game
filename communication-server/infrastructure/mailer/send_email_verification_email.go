@@ -319,11 +319,13 @@ func (m mailer) SendEmailVerificationEmail(to, link string) (err error) {
 	)
 
 	// TODO: prevent load template every time
-	if tmpl, err = template.New("verification_email").Parse(verifyEmailTemplate); err != nil {
+	tmpl, err = template.New("verification_email").Parse(verifyEmailTemplate)
+	if err != nil {
 		return
 	}
 
-	if err = tmpl.Execute(&body, verifyEmailInjection{Link: link}); err != nil {
+	err = tmpl.Execute(&body, verifyEmailInjection{Link: link})
+	if err != nil {
 		return
 	}
 
@@ -333,6 +335,5 @@ func (m mailer) SendEmailVerificationEmail(to, link string) (err error) {
 	msg.SetHeader("Subject", "Dignity Game Email Verification")
 	msg.SetBody("text/html", body.String())
 
-	err = m.dialer.DialAndSend(msg)
-	return
+	return m.dialer.DialAndSend(msg)
 }
