@@ -4,6 +4,7 @@ import (
 	"communication-server/config"
 	"communication-server/infrastructure/api"
 	"communication-server/infrastructure/cache"
+	"communication-server/infrastructure/mailer"
 	"communication-server/infrastructure/postgresql"
 	"communication-server/internal/usecase"
 	"context"
@@ -32,12 +33,18 @@ func main() {
 	defer pdb.Close()
 	log.Println("Connected to PostgreSQL...")
 
+	log.Println("Connecting email service...")
+	mailer := mailer.New(config.Mail)
+	log.Println("Email service is ready...")
+
 	router := gin.Default()
 	apiGroup := router.Group("/api")
 
 	apiServer := api.New(
 		config.App,
 		cache.New(nil),
+		mailer,
+		usecase.NewAuthentiUsecase(config.App, pdb),
 		usecase.NewPlayerUsecase(pdb),
 	)
 	apiServer.Use(apiGroup)

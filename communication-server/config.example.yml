@@ -2,6 +2,8 @@ app:
   debug: true
   env: development
   port: 8080
+  host: http://localhost:8080/
+  secretKey: "12345678912345678912345678912345"
 postgresql:
   host: postgres
   port: 5432
@@ -9,3 +11,9 @@ postgresql:
   password: dgame
   database: dgame
   pollSize: 5
+mail:
+  host:
+  port:
+  address:
+  password:
+

@@ -6,10 +6,16 @@ package gen
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type Querier interface {
-	PlayerByID(ctx context.Context, id int64) (Player, error)
+	CreatePlayer(ctx context.Context, arg CreatePlayerParams) (Player, error)
+	PlayerByEmailOrUsername(ctx context.Context, emailOrUsername string) (Player, error)
+	PlayerByID(ctx context.Context, id uuid.UUID) (Player, error)
+	UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error
+	VerifyEmail(ctx context.Context, id uuid.UUID) error
 }
 
 var _ Querier = (*Queries)(nil)

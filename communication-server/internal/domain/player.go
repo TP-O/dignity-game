@@ -1,6 +1,7 @@
 package domain
 
+import "communication-server/infrastructure/postgresql/gen"
+
 type Player struct {
-	ID       int64  `json:"id"`
-	Username string `json:"username"`
+	gen.Player
 }
