@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"communication-server/infrastructure/postgresql/gen"
 	"communication-server/internal/domain"
 	"communication-server/internal/port"
 	"context"
@@ -24,7 +25,19 @@ func NewPlayerUsecase(repository port.Repository) PlayerUsecase {
 }
 
 func (pu playerUsecase) FindPlayer(ctx context.Context, id uuid.UUID) (res domain.Player, err error) {
-	res.Player, err = pu.repository.PlayerByID(ctx, id)
+	var q gen.Querier
+	ctx, q, err = pu.repository.BeginTx(ctx, nil)
+	if err != nil {
+		return
+	}
+
+	res.Player, err = q.PlayerByID(ctx, id)
+	if err != nil {
+		err = pu.repository.RollbackTx(ctx, err)
+		return
+	}
+
+	_, err = pu.repository.CommitTx(ctx)
 	return
 }
 

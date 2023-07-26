@@ -70,5 +70,5 @@ func main() {
 		log.Println(err.Error())
 	}
 
-	log.Println("Exited")
+	// log.Println("Exited")
 }
