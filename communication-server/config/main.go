@@ -2,7 +2,6 @@ package config
 
 import (
 	"log"
-
 	"github.com/spf13/viper"
 )
 
@@ -18,7 +17,6 @@ type config struct {
 
 var cfg *config
 
-// loadDefaultConfig loads the default config values.
 func loadDefaultConfig(cfg *config) {
 	cfg.App.loadDefault()
 	cfg.PostgreSQL.loadDefault()

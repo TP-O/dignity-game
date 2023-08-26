@@ -3,22 +3,18 @@ package api
 import (
 	"communication-server/internal/domain"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
-func (as apiServer) GetPlayerByID(ctx *gin.Context) {
+func (as apiServer) GetPlayerByUsernameOrEmail(ctx *gin.Context) {
 	var (
-		id  uuid.UUID
+		usernameOrEmail string
 		res domain.Player
 		err error
 	)
 
-	id, err = uuid.Parse(ctx.Param("id"))
-	if err != nil {
-		return
-	}
+	usernameOrEmail = ctx.Param("usernameOrEmail")
 
-	res, err = as.playerUsecase.FindPlayer(ctx, id)
+	res, err = as.playerUsecase.FindPlayerByUsernameOrEmail(ctx, usernameOrEmail)
 	if err != nil {
 		return
 	}
