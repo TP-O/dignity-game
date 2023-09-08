@@ -38,6 +38,7 @@ func New(
 
 func (as apiServer) Use(router *gin.RouterGroup) {
 	router.GET("/player/:id", as.GetPlayerByID)
+    router.GET("/player/:usernameOrEmail", as.GetPlayerByUsernameOrEmail)
 	router.POST("/auth/login", as.LoginPlayer)
 	router.POST("/auth/register", as.RegisterPlayer)
 
